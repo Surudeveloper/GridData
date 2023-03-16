@@ -12,14 +12,6 @@ var Students = new mongoose.Schema({
 },{ collection: 'Students', timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });
 
 module.exports = mongoose.model('Students', Students);
+// const StudentModel = mongoose.model("StudentModel",Students)
 
-// let StudentsTable = mongoose.model('Students', Students);
-// module.exports={
-//      fetchData:function(callback){
-//         let StudentsData=StudentsTable.find({});
-//         StudentsData.exec(function(err, data){
-//             if(err) throw err;
-//             return callback(data);
-//         })
-//      }
-// }
+// module.exports = StudentModel
