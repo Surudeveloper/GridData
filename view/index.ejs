@@ -14,7 +14,7 @@
     <body>
         <div class="container">
             <nav class="navbar navbar-expand-md bg-dark navbar-dark fixed-top">
-                <a class="navbar-brand" href="#">Developer Funnel</a>
+                <a class="navbar-brand" href="#">Grid Data</a>
                 <button class="navbar-toggler" type="button" data-toggle="collpase"
                     data-targert="#collapsibleNavbar">
                     <span class="navbar-toggle-icon"></span>
@@ -26,14 +26,14 @@
                             <a class="nav-link" href="#">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/new">Add new</a>
+                            <a class="nav-link" href="/form">Add new</a>
                         </li>
                     </ul>
                 </div>
             </nav>
             <br/><br/><br/><br/>
             <h2>List of Students</h2>
-            <div class="table-responsive">
+            <div class="table-student">
                 <table class="table table-hover table-striped"  id="myTable">
                     <caption>Students List</caption>
                     <thead class="thead-dark">
@@ -49,29 +49,7 @@
                             <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <% for(var i=0; i<data.length; i++) {%>
-                        <tr>
-                            <td><%=data[i].FName%></td>
-                            <td><%=data[i].MName%></td>
-                            <td><%=data[i].LName%></td>
-                            <td><%=data[i].Mobile_No%></td>
-                            <td><%=data[i].Age%></td>
-                            <td><%=data[i].Stream%></td>
-                            <td><%=data[i].Email_ID%></td>
-                            <td><%=data[i].Country%></td>
-                            <td><%=data[i].Status%></td>
-                            <td>
-                                <button type="button" class="edit btn btn-warning"
-                                 data-toggle="modal" data-target="#myModal"
-                                 id="<%=data[i]._id%>">Edit</button>
-                                <button type="button" class="delete btn btn-danger" id="<%=data[i]._id%>">
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                        <%}%>
-                    </tbody>
+                   
                 </table>
                 <!-- The Modal -->
                 <div class="modal" id="myModal">
@@ -89,16 +67,40 @@
                                 <form action="/updateUser" method="POST" id="update_user">
                                     <input type="text" readonly class="form-control" id="update_id"  name="_id">
                                     <div class="form-group">
-                                        <label for="name">Name:</label>
-                                        <input type="text" class="form-control" id="update_name" placeholder="Enter First name" name="name" required>
+                                        <label for="FName">FName:</label>
+                                        <input type="text" class="form-control" id="update_FName" placeholder="Enter First name" name="FName" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="city">City:</label>
-                                        <input type="text" class="form-control" id="update_city" placeholder="Enter City" name="city">
+                                        <label for="MName">MName:</label>
+                                        <input type="text" class="form-control" id="update_MName" placeholder="Enter Middle name" name="MName" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="phone">Phone:</label>
-                                        <input type="email" class="form-control" id="update_phone" placeholder="Enter phone" name="phone">
+                                        <label for="LName">LName:</label>
+                                        <input type="text" class="form-control" id="update_LName" placeholder="Enter Last name" name="LName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Mobile_No">Mobile_No:</label>
+                                        <input type="text" class="form-control" id="update_Mobile_No" placeholder="Enter Mobile_No" name="Mobile_No">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phone">Age:</label>
+                                        <input type="text" class="form-control" id="update_Age" placeholder="Enter Age" name="Age">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Stream">Stream:</label>
+                                        <input type="text" class="form-control" id="update_Stream" placeholder="Enter Stream" name="Stream">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Email_ID">Email_ID:</label>
+                                        <input type="text" class="form-control" id="update_Email_ID" placeholder="Enter Email_ID" name="Email_ID">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Country">Country:</label>
+                                        <input type="text" class="form-control" id="update_Country" placeholder="Enter Country" name="Country">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Status">Status:</label>
+                                        <input type="text" class="form-control" id="update_status" placeholder="Enter Status" name="Status">
                                     </div>
                                 </form>
                   
@@ -115,71 +117,4 @@
                 </div>
             </div>
         </div>
-        <script type="text/javascript">
-        $(document).ready(function(){
-            $('#myTable').DataTable()
-        });
-        // edit data
-        $('.edit').click(function() {
-                    id= this.id;
-                    console.log('id is '+id)
-                    $.ajax({
-                        type: 'get',
-                        url: `/users?id=${id}`,
-                        success: function(data){
-                              $("#update_id").attr("value", data[0]._id);
-                              $("#update_name").attr("value", data[0].name);
-                              $("#update_city").attr("value", data[0].city);
-                              $("#update_phone").attr("value", data[0].phone);
-                              $('#Modal').modal({show: true});
-                        },
-                        error: function(){
-                            alert('No data');
-                        }
-                    });
-                });
-                $('.delete').click(function() {
-                    var response = confirm("do you want to delete")
-                    id = this.id;
-                    console.log(response)
-                    if(response === true){
-                        $.ajax({
-                            type: 'DELETE',
-                            url: '/deleteUser',
-                            method: 'delete',
-                            data: {"id":id},
-                            success: function(data){
-                                console.log('data is '+JSON.stringify(data));
-                                window.location.reload()
-                            },
-                            error: function(){
-                                alert('No data');
-                            }
-                        });
-                    }
-                    else{
-                        console.log("not deleted")
-                    }
-                });
-                // update data
-                $(function(){
-                      $('#update_table').on('click', function(e){
-                        var data = $('#update_user').serialize();
-                        console.log(">>>>>", data)
-                        e.preventDefault();
-                        $.ajax({
-                          url: '/updateUser',
-                          type:'PUT',
-                          data : data,
-                          success: function(data){
-                              console.log("success of update")
-                              window.location.reload()
-                        },
-                        error: function(){
-                          alert('No data');
-                        }
-                      });
-                  });
-                  });
-        </script>
     </body>

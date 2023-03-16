@@ -14,30 +14,29 @@ app.use(cors())
 
 const Students = require('./model/student')
 mongoose.connect('mongodb://127.0.0.1:27017/StudentData')
+.then(()=>{
+    app.get('/form',(req,res)=>{
+        res.render("form")
+    })
 
-let db;
-let col_name = "Students"
-app.get('/',(req,res)=>{
-    db.collection(col_name).find({}).toArray((err,result)=>{
-        if(err) throw err;
-        res.status(200).render('index', {data:result})
+    app.post('/form-submit', async (req,res)=>{
+        const data = new Students(req.body)
+        let Result = await data.save();
+        res.send("Data Saved Successfully, Check Database")
+    })
+
+    app.get('/index',(req,res)=>{ 
+        let db;
+        db.getcollection(Students).find({}).toArray((err,result)=>{
+        if(err) throw err
+        res.render('index',{data:result})
+       })
+        // res.render('index')
     })
 })
-// mongoose.connect('mongodb://127.0.0.1:27017/StudentData')
-// .then(()=>{
-//     app.get('/index',(req,res)=>{
-//         res.render(__dirname+"/view/index.ejs")
-//     })
-    
-//     app.post('/form-submit', async (req,res)=>{
-//         const data = new Students(req.body)
-//         await data.save()
-//         res.send("Data Saved Successfully, Check Database")
-//     })
-// })
-// .catch(()=>{
-//     console.log('Error while connecting');
-// })
+.catch(()=>{
+    console.log('Error while connecting');
+})
 
 app.listen(port, (err)=>{
     if (err) throw err
