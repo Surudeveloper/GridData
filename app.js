@@ -12,13 +12,17 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
+
 let Students = require("./model/student");
 
 mongoose.connect("mongodb://127.0.0.1:27017/StudentData").then(() => {
 
     //To show the Data in Grid form
     app.get("/index", async (req, res) => {
-      let result = await Students.find({});
+      let toSort={
+        Age : 1,
+      }
+      let result = await Students.find({}).sort(toSort).exec();
       res.render("index", { data: result });
     });
 
@@ -122,6 +126,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/StudentData").then(() => {
     })
 
   })
+
   .catch(() => {
     console.log("Error while connecting");
   });
