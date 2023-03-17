@@ -1,9 +1,9 @@
-var express = require("express");
-var mongoose = require("mongoose");
-var bodyParser = require("body-parser");
-var cors = require("cors");
-var app = express();
-var port = 9090;
+let express = require("express");
+let mongoose = require("mongoose");
+let bodyParser = require("body-parser");
+let cors = require("cors");
+let app = express();
+let port = 9090;
 
 app.set("views", "./view");
 app.set("view engine", "ejs");
@@ -12,101 +12,116 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
-// let StudentsData = [
-//   {
-//     _id: "6412cc481c44381cc6069bff",
-//     FName: "Suresh",
-//     MName: "Kumar",
-//     LName: "Chauhan",
-//     Mobile_No: 8102356222.0,
-//     Age: "28",
-//     Stream: "Engg",
-//     Email_ID: "suresh.k@finbot.in",
-//     Country: "India",
-//     Status: true,
-//   },
-//   {
-//     _id: "6412cc821c44381cc6069c01",
-//     FName: "Aakash",
-//     MName: "Kumar",
-//     LName: "Sahu",
-//     Mobile_No: 8104352728.0,
-//     Age: "30",
-//     Stream: "Science",
-//     Email_ID: "aakash.k@finbot.in",
-//     Country: "India",
-//     Status: true,
-//   },
-//   {
-//     _id: "6412ccae1c44381cc6069c03",
-//     FName: "Sumit",
-//     MName: "",
-//     LName: "Kumar",
-//     Mobile_No: 8102353425.0,
-//     Age: "29",
-//     Stream: "Engg",
-//     Email_ID: "sumit.k@finbot.in",
-//     Country: "India",
-//     Status: true,
-//   },
-//   {
-//     _id: "6412cce21c44381cc6069c05",
-//     FName: "Manoj",
-//     MName: "Kumar",
-//     LName: "Mahato",
-//     Mobile_No: 8102277722.0,
-//     Age: "29",
-//     Stream: "Science",
-//     Email_ID: "manoj.k@finbot.in",
-//     Country: "Japan",
-//     Status: true,
-//   },
-//   {
-//     _id: "6412cd271c44381cc6069c07",
-//     FName: "Kaushal",
-//     MName: "",
-//     LName: "Kishore",
-//     Mobile_No: 8102353425.0,
-//     Age: "30",
-//     Stream: "Biology",
-//     Email_ID: "kaushal.k@finbot.in",
-//     Country: "USA",
-//     Status: true,
-//   },
-// ];
+let Students = require("./model/student");
 
-const Students = require("./model/student");
 mongoose.connect("mongodb://127.0.0.1:27017/StudentData").then(() => {
-    app.get("/form", (req, res) => {
-      res.render("form");
+
+    //To show the Data in Grid form
+    app.get("/index", async (req, res) => {
+      let result = await Students.find({});
+      res.render("index", { data: result });
     });
 
-    app.post("/form-submit", async (req, res) => {
-      const data = new Students(req.body);
-      let Result = await data.save();
-      res.send("Data Saved Successfully, Check Database");
-    });
+    //To add user
+    app.post('/AddUser', async(req,res)=>{
+      let Data = {
+        "FName": req.body.FName,
+        "MName": req.body.MName,
+        "LName": req.body.LName,
+        "Mobile_No": req.body.Mobile_No,
+        "Age": req.body.Age,
+        "Stream": req.body.Stream,
+        "Email_ID": req.body.Email_ID,
+        "Country": req.body.Country,
+        "Status": true
+      };
+      let Result = await Students.create(Data)
+      console.log('Data Saved Successfully')
+      res.render('admin')
+    })
 
-    // app.get("/index", (req, res) => {
-    //   res.render("index", { data: StudentsData });
-    // });
+    app.get('/new',(req,res)=>{
+      res.render('admin')
+    })
 
-    // app.get('/index', (req, res) => {
-        //    let result = Students.find({});
-        // //    res.render('index', { data: result })
-        //    res.send(result)
-        // });
-        
-    app.get('/index', (req, res) => {
-       Students.find({}),(err,data)=>{
-        if(err) throw err
-        res.render('index', { data: result })
-        //    res.send(result)
-       }
-    });
+    //To Update user
+    app.post('/UpdateUser', async(req,res)=>{
+      let findQuery= {_id: req.body._id};
+      let updateQuery = {
+        $set: {
+            FName: req.body.FName,
+            MName: req.body.MName,
+            LName: req.body.LName,
+            Mobile_No: req.body.Mobile_No,
+            Age: req.body.Age,
+            Stream: req.body.Stream,
+            Email_ID: req.body.Email_ID,
+            Country: req.body.Country
+          }
+      };
+      await Students.updateOne(findQuery,updateQuery)
+      console.log('Data Updated Successfully')
+      res.render('admin')
+    })
+
+    app.get('/Update',(req,res)=>{
+      res.render('update')
+    })
+
+    //Hard delete
+    app.post('/DeleteUser',async (req,res)=>{
+      let query = {
+        _id : req.body._id
+      }
+      await Students.deleteOne(query)
+      res.render('delete')
+      console.log('Data Deleted Successfully')
+    })
+
+    app.get('/Delete',(req,res)=>{
+      res.render('delete')
+    })
+
+    //Soft Delete //Deactivate user
+    app.post('/DeactivateUser',async (req,res)=>{
+      let query = {  
+        _id: req.body._id,
+      }
+
+      let statusQuery={
+        $set:{
+          Status: false
+        }
+      }
+      await Students.findOneAndUpdate(query,statusQuery)
+        console.log('User Deactivated')
+        res.render('deactivate')
+    })
+
+    app.get('/Deactivate',(req,res)=>{
+      res.render('deactivate')
+    })
+    
+    //Activate user
+    app.post('/ActivateUser',async (req,res)=>{
+      let query = {
+        _id: req.body._id,
+      }
+      let statusQuery={
+        $set:{
+          Status: true
+        }
+      }
+      await Students.findOneAndUpdate(query,statusQuery)
+      console.log('User Activated')
+      res.render('activate')
+    })
+
+    app.get('/Activate',(req,res)=>{
+      res.render('activate')
+    })
 
   })
-
   .catch(() => {
     console.log("Error while connecting");
   });
